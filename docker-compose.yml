@@ -1,0 +1,61 @@
+version: "3" 
+services:
+  # Web service
+  nginx:
+    image: nginx:1.18
+    restart: unless-stopped
+    volumes:
+      - "./nginx/nginx.conf:/etc/nginx/nginx.conf"
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+      - frontend
+
+  backend:
+    build:
+      context: ./php
+    restart: unless-stopped
+    volumes:
+      - ./back:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mysql
+    # environment:
+    #   - DB_HOST=mysql
+    #   - DB_PORT=3306
+    #   - DB_DATABASE=blog-crud
+    #   - DB_USERNAME=root
+    #   - DB_PASSWORD=12345678
+    command: >
+      bash -c "php artisan migrate 
+      && php artisan db:seed --class=PostSeeder
+      && php artisan serve --host=0.0.0.0 --port=8000"
+
+  frontend:
+    image: node:current-alpine
+    restart: unless-stopped
+    working_dir: /home/node/app
+    volumes:
+      - ./front:/home/node/app
+    ports:
+      - "8080:8080"
+    environment:
+      NODE_ENV: development
+    command: "npm run serve"
+  
+  # Data persistence service
+  mysql:
+    image: mysql:5.7.33
+    restart: unless-stopped
+    volumes:
+      - "db_data:/var/lib/mysql"
+      - "./mysql/initial_data:/docker-entrypoint-initdb.d"
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=12345678
+
+volumes:
+  db_data:
