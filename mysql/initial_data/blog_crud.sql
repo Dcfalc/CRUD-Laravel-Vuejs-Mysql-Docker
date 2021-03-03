@@ -7,7 +7,8 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 
-CREATE DATABASE `blog-crud`;
+-- CREATE DATABASE `blog_crud`;
+CREATE SCHEMA `blog_crud` ;
 
 
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
